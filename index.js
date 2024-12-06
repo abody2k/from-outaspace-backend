@@ -181,6 +181,74 @@ app.post("/aexp",async(req,res)=>{
 
 })
 
+//increase experience by action, it can be abused if the player kept sending this request
+app.post("/aexpa",async(req,res)=>{
+
+    //check if the is valid
+    if(req.body.id && typeof(req.body.actionID) == "string"){
+
+        try {
+            verify(req.body.id,process.env.SECRET,async(e,d)=>{
+     
+                
+                if (e){
+                    res.sendStatus(403);
+
+                    
+                    
+                }else{
+
+
+                    
+                    //this is the right token, get the user id
+                    //d.id
+                    //
+                    try {
+                        const data = await axios.post(
+                            
+                            `https://api.whalepass.gg/players/${d.id}/progress/action`,{
+
+                                "gameId": process.env.gameId,
+                                "actionId": req.body.actionID
+                            }
+                            ,{
+    
+                            headers:{
+    
+                                "X-API-KEY":process.env.API,
+                                "X-Battlepass-Id":"cf7fc405-0877-464a-bab8-d0e56508f4e0"
+    
+                            }
+                        });
+
+                        console.log(data.data.battlepassProgress);
+                        res.sendStatus(200);
+                        
+                    } catch (error) {
+                        console.log(error);
+                        
+                        res.sendStatus(403)
+                    }
+
+                    
+                }
+    
+            })
+
+
+
+        } catch (error) {
+            res.sendStatus(403);
+        }
+    }else{
+
+        res.sendStatus(403);
+    }
+
+
+})
+
+
 async function createPlayer(playerID) {
 
     
