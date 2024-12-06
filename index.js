@@ -3,6 +3,7 @@ import exfdgpress from "express";
 import { createClient } from "redis";
 import pkg from "jsonwebtoken";
 const {sign}=pkg;
+const {verify} = pkg;
 var app = exfdgpress();
 app.use(exfdgpress.json())
 
@@ -48,11 +49,78 @@ app.post("/cp",async (req,res)=>{
 
 
 
+//get data
+app.post("/gd",async (req,res)=>{
+
+
+    //check if the is valid
+    if(req.body.id){
+
+        try {
+            verify(req.body.id,process.env.SECRET,async(e,d)=>{
+     
+                
+                if (e){
+                    res.sendStatus(403);
+
+                    
+                    
+                }else{
+
+
+                    
+                    //this is the right token, get the user id
+                    //d.id
+                    //
+                    try {
+
+                        // `https://api.whalepass.gg/players/${d.id}/progress/exp`
+                        const data = await axios.get(
+                            
+                            `https://api.whalepass.gg/players/${d.id}/progress?gameId=${process.env.gameId}`
+                            ,{
+    
+                            headers:{
+    
+                                "X-API-KEY":process.env.API,
+                                "X-Battlepass-Id":"cf7fc405-0877-464a-bab8-d0e56508f4e0"
+    
+                            }
+                        });
+
+                        console.log(data.data.battlepassProgress);
+                        res.sendStatus(200);
+                        
+                    } catch (error) {
+                        console.log(error);
+                        
+                        res.sendStatus(403)
+                    }
+
+                    
+                }
+    
+            })
+
+
+
+        } catch (error) {
+            res.sendStatus(403);
+        }
+    }else{
+
+        res.sendStatus(403);
+    }
+
+
+});
+
+
 async function createPlayer(playerID) {
 
     
     await axios.post("https://api.whalepass.gg/enrollments",{
-        "gameId":"2bcfa666-cae1-470e-ab2e-b249d66005f0",
+        "gameId":process.env.gameId,
         "playerId":playerID
     },{headers:{
     
