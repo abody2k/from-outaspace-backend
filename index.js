@@ -1,6 +1,8 @@
 import axios from "axios";
 import exfdgpress from "express";
 import { createClient } from "redis";
+import pkg from "jsonwebtoken";
+const {sign}=pkg;
 var app = exfdgpress();
 app.use(exfdgpress.json())
 
@@ -28,7 +30,10 @@ app.post("/cp",async (req,res)=>{
         
         await client.set("nextPlayerId",Number(playerID)+1);
         console.log("Just made a player");
-        res.sendStatus(200);
+        const token=sign({id:Number(playerID)},process.env.SECRET,{expiresIn:"100y"});
+        res.send(
+           { id : token}
+        );
         
 
     } catch (error) {//player already exists
